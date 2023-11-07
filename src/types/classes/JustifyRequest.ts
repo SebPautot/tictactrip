@@ -1,20 +1,32 @@
 import { JustificationType } from "../enums";
 
 export class JustifyRequest {
+    /**
+     * The text to be justified.
+     */
     text: string;
-    justification: JustificationType = JustificationType.JustifyLeft;
-    charactersPerLine: number = 80;
+    /**
+     * The justification type.
+     */
+    justification: JustificationType;
+    /**
+     * The maximum amount of characters per line.
+     */
+    charactersPerLine: number;
 
-    constructor(text: string, justification?: JustificationType, charactersPerLine?: number) {
+    constructor(text: string = "", justification: JustificationType = JustificationType.JustifyLeft, charactersPerLine: number = 80) {
         this.text = text;
-        if (justification) this.justification = justification;
-        if (charactersPerLine) this.charactersPerLine = charactersPerLine;
+        this.justification = justification;
+        this.charactersPerLine = charactersPerLine;
     }
 
     /**
-     * Returns the justified text.
+     * The justified text value.
      */
     get justifiedText(): string {
+        if (!this.text)
+            return "";
+
         var res: string = "";
         var paragraphs: string[] = this.text.split(/\n/gmi);
 
@@ -26,28 +38,30 @@ export class JustifyRequest {
             line = "";
             paragraph = "";
             words.forEach((word, index) => {
-                if (word.length + line.length > 80) {
+                if (word.length + line.length >= this.charactersPerLine) {
                     paragraph += this.justifyLine(line);
+                    paragraph += "\n";
                     line = "";
                 } else {
                     line += (word + " ");
                 }
             })
 
-            if (line.length > 0)
+            if (line.length > 0) {
                 paragraph += this.justifyLine(line);
-
-            if (index < paragraphs.length - 1)
                 paragraph += "\n";
+            } else if (index < paragraphs.length - 1) {
+                paragraph += "\n";
+            }
 
             res += paragraph;
         })
 
         return res;
     }
-    
-    justifyLine(line: string): string{
-        var spacesRemaining = line.length - this.charactersPerLine;
+
+    justifyLine(line: string): string {
+        var spacesRemaining = this.charactersPerLine - line.length;
 
         if (spacesRemaining <= 0)
             return line;
@@ -67,13 +81,12 @@ export class JustifyRequest {
                 spacesRight = Math.ceil(spacesRemaining / 2);
         }
 
-        for (var i = 0; i < spacesLeft; i++)
-        {
-            " " + line;
+        for (var i = 0; i < spacesRight; i++) {
+            line = " " + line;
         }
 
-        for (var i = 0; i < spacesRight; i++) {
-            line+" ";
+        for (var i = 0; i < spacesLeft; i++) {
+            line = line + " ";
         }
 
         return line;

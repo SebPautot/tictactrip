@@ -3,19 +3,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.JustifyRequest = void 0;
 const enums_1 = require("../enums");
 class JustifyRequest {
-    constructor(text, justification, charactersPerLine) {
-        this.justification = enums_1.JustificationType.JustifyLeft;
-        this.charactersPerLine = 80;
+    constructor(text = "", justification = enums_1.JustificationType.JustifyLeft, charactersPerLine = 80) {
         this.text = text;
-        if (justification)
-            this.justification = justification;
-        if (charactersPerLine)
-            this.charactersPerLine = charactersPerLine;
+        this.justification = justification;
+        this.charactersPerLine = charactersPerLine;
     }
     /**
-     * Returns the justified text.
+     * The justified text value.
      */
     get justifiedText() {
+        if (!this.text)
+            return "";
         var res = "";
         var paragraphs = this.text.split(/\n/gmi);
         var paragraph = "";
@@ -25,24 +23,28 @@ class JustifyRequest {
             line = "";
             paragraph = "";
             words.forEach((word, index) => {
-                if (word.length + line.length > 80) {
+                if (word.length + line.length >= this.charactersPerLine) {
                     paragraph += this.justifyLine(line);
+                    paragraph += "\n";
                     line = "";
                 }
                 else {
                     line += (word + " ");
                 }
             });
-            if (line.length > 0)
+            if (line.length > 0) {
                 paragraph += this.justifyLine(line);
-            if (index < paragraphs.length - 1)
                 paragraph += "\n";
+            }
+            else if (index < paragraphs.length - 1) {
+                paragraph += "\n";
+            }
             res += paragraph;
         });
         return res;
     }
     justifyLine(line) {
-        var spacesRemaining = line.length - this.charactersPerLine;
+        var spacesRemaining = this.charactersPerLine - line.length;
         if (spacesRemaining <= 0)
             return line;
         var spacesLeft = 0;
@@ -58,11 +60,11 @@ class JustifyRequest {
                 spacesLeft = Math.floor(spacesRemaining / 2);
                 spacesRight = Math.ceil(spacesRemaining / 2);
         }
-        for (var i = 0; i < spacesLeft; i++) {
-            " " + line;
-        }
         for (var i = 0; i < spacesRight; i++) {
-            line + " ";
+            line = " " + line;
+        }
+        for (var i = 0; i < spacesLeft; i++) {
+            line = line + " ";
         }
         return line;
     }
