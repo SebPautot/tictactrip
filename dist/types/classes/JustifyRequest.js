@@ -23,7 +23,18 @@ class JustifyRequest {
             line = "";
             paragraph = "";
             words.forEach((word, index) => {
-                if (word.length + line.length >= this.charactersPerLine) {
+                if (word.length > this.charactersPerLine) {
+                    paragraph += this.justifyLine(line);
+                    paragraph += "\n";
+                    line = "";
+                    var wordRemaining = word;
+                    for (var i = 0; i < word.length / this.charactersPerLine; i++) {
+                        paragraph += wordRemaining.slice(0, this.charactersPerLine) + "\n";
+                        wordRemaining = wordRemaining.slice(this.charactersPerLine);
+                    }
+                    line = wordRemaining + " ";
+                }
+                else if (word.length + line.length >= this.charactersPerLine) {
                     paragraph += this.justifyLine(line);
                     paragraph += "\n";
                     line = "";

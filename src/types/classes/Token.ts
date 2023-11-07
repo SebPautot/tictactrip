@@ -4,10 +4,12 @@ export class Token {
     timeUntilDeprecationInMilliseconds = 86400000; //1 day
     maxJustifiedWordCount = 80000;
     currentJustifiedWordCount = 0;
+    email: string = "";
 
-    constructor() {
-        this.value = this.generatedValue(30);
+    constructor(email:string) {
+        this.value = this.generatedValue(10);
         this.generatedAt = Date.now();
+        this.email = email;
     }
 
     generatedValue(length: number): string {
@@ -15,10 +17,18 @@ export class Token {
     }
 
     get isValid(): boolean {
-        return (Date.now() - this.generatedAt) < this.timeUntilDeprecationInMilliseconds;
+        return this.currentTimeUntilDeprecation > 0;
+    }
+
+    get currentTimeUntilDeprecation() {
+        return this.timeUntilDeprecationInMilliseconds - (Date.now() - this.generatedAt);
     }
 
     get isTokenLocked() : boolean {
-        return (this.maxJustifiedWordCount - this.currentJustifiedWordCount) > 0
+        return !(this.currentRemainingWordCount > 0);
+    }
+
+    get currentRemainingWordCount() {
+        return this.maxJustifiedWordCount - this.currentJustifiedWordCount;
     }
 }
