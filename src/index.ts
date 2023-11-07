@@ -1,8 +1,11 @@
 import express, { Express, Request, Response, Application } from 'express';
+import bodyParser from 'body-parser';
 import { JustifyRequest } from './types/classes/JustifyRequest';
 
 const app: Application = express();
 const port = process.env.PORT || 8000;
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.get('/', (req: Request, res: Response) => {
     res.send('Welcome to Express & TypeScript Server');
