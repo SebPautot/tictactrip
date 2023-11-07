@@ -51,7 +51,6 @@ app.post('/api/token', (req, res) => {
         token = new Token_1.Token(req.body.email);
         tokens.push(token);
     }
-    console.log(tokens);
     res.send({ token: token.value, timeUntilDeprectationInMilliseconds: token.currentTimeUntilDeprecation, remainingWordCount: token.currentRemainingWordCount });
 });
 app.listen(port, () => {

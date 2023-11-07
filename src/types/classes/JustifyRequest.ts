@@ -24,7 +24,7 @@ export class JustifyRequest {
      * The justified text value.
      */
     get justifiedText(): string {
-        if (!this.text)
+        if (!this.text || this.charactersPerLine < 1)
             return "";
 
         var res: string = "";
@@ -39,26 +39,30 @@ export class JustifyRequest {
             paragraph = "";
             words.forEach((word, index) => {
 
-                if (word.length > this.charactersPerLine) {
+                if (word.length >= this.charactersPerLine) {
 
                     paragraph += this.justifyLine(line);
                     paragraph += "\n";
                     line = "";
 
-                    var wordRemaining: string = word; 
-                    for (var i = 0; i < word.length / this.charactersPerLine; i++) {
+                    var wordRemaining: string = word;
+
+                    for (var i = 0; i < (word.length / this.charactersPerLine) - 1; i++) {
                         paragraph += wordRemaining.slice(0, this.charactersPerLine) + "\n";
                         wordRemaining = wordRemaining.slice(this.charactersPerLine);
                     }
 
-                    line = wordRemaining + " ";
+                    line += wordRemaining;
                 } else if (word.length + line.length >= this.charactersPerLine) {
                     paragraph += this.justifyLine(line);
                     paragraph += "\n";
-                    line = "";
+                    line = word;
                 } else {
-                    line += (word + " ");
+                    line += word;
                 }
+
+                if (index < words.length - 1)
+                    line += " ";
             })
 
             if (line.length > 0) {
@@ -86,9 +90,13 @@ export class JustifyRequest {
         switch (this.justification) {
             case JustificationType.JustifyLeft:
                 spacesLeft = spacesRemaining;
+                spacesLeft += line.match(/^( +)/gm)?.length || 0;
+                line = line.replace(/^( +)/gm, '');
                 break;
             case JustificationType.JustifyRight:
                 spacesRight = spacesRemaining;
+                spacesRight += line.match(/( +)$/gm)?.length || 0;
+                line = line.replace(/( +)$/gm, '');
                 break;
             case JustificationType.JustifyCenter:
                 spacesLeft = Math.floor(spacesRemaining / 2);
